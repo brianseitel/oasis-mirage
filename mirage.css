@@ -1,4 +1,7 @@
 #mirage-box { position: relative; }
-.mirage-item { position: absolute; overflow: hidden; width: 120px; height: 120px; }
+.mirage-item { position: absolute; overflow: hidden; width: 120px; height: 120px; z-index: 100; }
 .mirage-item img { position: absolute; top: 0; left: 0; width: 100%; }
-.mirage-item.hidden { display: none; }
+.mirage-item.first { z-index: 101; }
+.mirage-item.second { z-index: 102; }
+.mirage-item.second.hidden { z-index: 100; }
+.mirage-item.third { z-index: 101; }

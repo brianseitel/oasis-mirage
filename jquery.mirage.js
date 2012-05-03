@@ -63,9 +63,9 @@
 			box.data('moveToPosition', i + 1);
 			if (i === 0)
 				box.addClass('first');
-			else if (i == 2)
+			else if (i == 1)
 				box.addClass('second');
-			else if (i == 3)
+			else if (i == 2)
 				box.addClass('third');
 			else
 				box.addClass('hidden');
@@ -85,7 +85,7 @@
 			} else {
 				newPos = currentPos - 1 < 1 ? $boxes.size() : currentPos - 1;
 			}
-			$(this).data('miragePosition',newPos);
+			$(this).data('miragePosition',newPos).addClass('position_'+newPos);
 
 			if (newPos === 1)
 				$(this).addClass('first').removeClass('second').removeClass('third').removeClass('hidden');
@@ -103,23 +103,28 @@
 		var that = this,
 			$boxes = $('.mirage-item', this.container);
 		$boxes.each(function() {
-			var mLength = 150,
+			var mLength = 180,
 				$this = $(this),
 				i = $this.data('miragePosition');
 
-			$this.animate({'left': (i - 1) * mLength});
+			$this.animate({
+				'left': i > 3 ? 2 * mLength : i == 2 ? i * mLength - 15 : i * mLength,
+				'top': i != 2 ? 15 : 0,
+				'width': i == 2 ? 150 : i > 3 ? 50 : 120,
+				'height': i == 2 ? 150 : i > 3 ? 50 : 120,
+				'opacity': i == 2 ? 1 : i > 3 ? 0 : 0.7
+			}, 1000);
+
 		});
 
 		$('.mirage-item').unbind('click');
 			
 		$('.mirage-item.first').on('click', function() {
-			console.log('clockwise');
 			that.rotate('clockwise');
 			that.moveToPosition();
 		});
 
 		$('.mirage-item.third').on('click', function() {
-			console.log('counter');
 			that.rotate();
 			that.moveToPosition();
 		});
