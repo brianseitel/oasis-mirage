@@ -1,6 +1,6 @@
 #mirage-box { position: relative; }
-.mirage-item { position: absolute; overflow: hidden; width: 120px; height: 120px; z-index: 100; }
-.mirage-item img { position: absolute; top: 0; left: 0; width: 100%; }
+.mirage-item { position: absolute; overflow: hidden; width: 120px; height: 120px; z-index: 100; overflow: visible;}
+.mirage-item img { position: absolute; top: 0; left: 0; width: 100%; border-radius: 5px; }
 .mirage-item.mirage-first { z-index: 101; }
 .mirage-item.mirage-second { z-index: 102; }
 .mirage-item.mirage-second.hidden { z-index: 100; }
