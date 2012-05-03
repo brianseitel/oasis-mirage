@@ -1,4 +1,4 @@
-// the semi-colon before function invocation is a safety net against concatenated 
+// the semi-colon before function invocation is a safety net against concatenated
 // scripts and/or other plugins which may not be closed properly.
 ;(function ( $, window, document, undefined ) {
 
@@ -38,43 +38,15 @@
 		this.parentItem = $(element).parent();
 		this.original = this.container.clone();
 
-		var that = this,
-			attachEvents = function() {
-				$('.mirage-item', this.container).on('click', this.rotateItem);
-			},
-			rotateItem = function() {
-				var $this = $(this);
-				if ($this.hasClass('first'))
-					that.rotate($this, 'clockwise', false);
-				else if ($this.hasClass('third'))
-					that.rotate($this, 'counterclockwise', false);
-			},
-			nextItem = function(current) {
-				if (current === this.image_list.length)
-					return 1;
-				else
-					return current + 1;
-			},
-			previousItem = function(current) {
-				if (current === 1)
-					return this.image_list.length;
-				else
-					return current - 1;
-			};
+		var that = this;
 		this.init();
 
-
+		this.moveToPosition();
 	}
 
 	Mirage.prototype.init = function () {
-		// Place initialization logic here
-		// You already have access to the DOM element and the options via the instance, 
-		// e.g., this.element and this.options
-		
 		this.buildContainer();
 		this.populateContainer();
-		Mirage.attachEvents();
-		this.rotate(1, 'counterclockwise', true);
 	};
 
 	Mirage.prototype.buildContainer = function() {
@@ -88,26 +60,72 @@
 		var images, $container = this.container, $options = this.options;
 		this.image_list.each(function(i, item) {
 			var box = $('<div/>').addClass('mirage-item').data('miragePosition', i+1).html($('img', item).first());
+			box.data('moveToPosition', i + 1);
+			if (i === 0)
+				box.addClass('first');
+			else if (i == 2)
+				box.addClass('second');
+			else if (i == 3)
+				box.addClass('third');
+			else
+				box.addClass('hidden');
 			$container.append(box);
 		});
 
 	};
 
-
 	Mirage.prototype.rotate = function(direction) {
 		$boxes = $('.mirage-item', this.container);
+		console.log(direction);
 		$boxes.each(function () {
 			var newPos;
-			if (direction === false) {
-				newPos = getNextNum($(this).data().position);
+			var currentPos = $(this).data('miragePosition');
+			if (direction == 'clockwise') {
+				newPos = currentPos + 1 <= $boxes.size() ? currentPos + 1 : 1;
 			} else {
-				newPos = getPreviousNum($(this).data().position);
+				newPos = currentPos - 1 < 1 ? $boxes.size() : currentPos - 1;
 			}
-			$(this).data('position',newPos);
+			$(this).data('miragePosition',newPos);
+
+			if (newPos === 1)
+				$(this).addClass('first').removeClass('second').removeClass('third').removeClass('hidden');
+			else if (newPos == 2)
+				$(this).addClass('second').removeClass('first').removeClass('third').removeClass('hidden');
+			else if (newPos == 3)
+				$(this).addClass('third').removeClass('first').removeClass('second').removeClass('hidden');
+			else
+				$(this).addClass('hidden').removeClass('first').removeClass('second').removeClass('third');
+		});
+
+	};
+
+	Mirage.prototype.moveToPosition = function() {
+		var that = this,
+			$boxes = $('.mirage-item', this.container);
+		$boxes.each(function() {
+			var mLength = 150,
+				$this = $(this),
+				i = $this.data('miragePosition');
+
+			$this.animate({'left': (i - 1) * mLength});
+		});
+
+		$('.mirage-item').unbind('click');
+			
+		$('.mirage-item.first').on('click', function() {
+			console.log('clockwise');
+			that.rotate('clockwise');
+			that.moveToPosition();
+		});
+
+		$('.mirage-item.third').on('click', function() {
+			console.log('counter');
+			that.rotate();
+			that.moveToPosition();
 		});
 	};
 
-	// A really lightweight plugin wrapper around the constructor, 
+	// A really lightweight plugin wrapper around the constructor,
 	// preventing against multiple instantiations
 	$.fn[pluginName] = function ( options ) {
 		return this.each(function () {
