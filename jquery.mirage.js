@@ -6,6 +6,7 @@
 	var pluginName = 'Mirage',
 	defaults = {
 		'containerWidth': 500,
+		'distanceMultiplier': 1,
 		'imageMaxWidth': 150,
 		'imageMaxHeight': 150,
 		'imageMinWidth': 120,
@@ -94,18 +95,18 @@
 	Mirage.prototype.moveToPosition = function() {
 		var self = this,
 			$boxes = $('.mirage-item', this.container);
+
 		$boxes.each(function() {
-			var mLength = 180,
-				$this = $(this),
+			var $this = $(this),
 				i = $this.data('miragePosition');
 
 			$this.animate({
-				'left': i > 3 ? 2 * mLength : i == 2 ? i * mLength - 15 : i * mLength,
+				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier : i == 2 ? i * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15 : i * self.options.imageMaxWidth  * self.options.distanceMultiplier,
 				'top': i != 2 ? 15 : 0,
 				'width': i == 2 ? self.options.imageMaxWidth : i > 3 ? self.options.hiddenWidth : self.options.imageMinWidth,
 				'height': i == 2 ? self.options.imageMaxHeight : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight,
 				'opacity': i == 2 ? 1 : i > 3 ? 0 : self.options.imageOpacity
-			}, 1000);
+			}, self.options.speed);
 
 		});
 
