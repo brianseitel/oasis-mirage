@@ -605,6 +605,7 @@ strong {
 }
 
 .wrapper {
+  width: 960px;
   margin: 0 auto;
   position: relative;
   padding: 0 20px;
