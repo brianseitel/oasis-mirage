@@ -2,24 +2,18 @@
 // scripts and/or other plugins which may not be closed properly.
 ;(function ( $, window, document, undefined ) {
 
-	// undefined is used here as the undefined global variable in ECMAScript 3 is
-	// mutable (ie. it can be changed by someone else). undefined isn't really being
-	// passed in so we can ensure the value of it is truly undefined. In ES5, undefined
-	// can no longer be modified.
-
-	// window and document are passed through as local variables rather than globals
-	// as this (slightly) quickens the resolution process and can be more efficiently
-	// minified (especially when both are regularly referenced in your plugin).
-
 	// Create the defaults once
 	var pluginName = 'Mirage',
 	defaults = {
 		'containerWidth': 500,
+		'distanceMultiplier': 1,
 		'imageMaxWidth': 150,
 		'imageMaxHeight': 150,
 		'imageMinWidth': 120,
 		'imageMinHeight': 120,
-		'hiddenWidth': 0,
+		'imageOpacity': 0.7,
+		'hiddenWidth': 50,
+		'hiddenHeight': 50,
 		'speed': 1500
 	};
 
@@ -38,7 +32,7 @@
 		this.parentItem = $(element).parent();
 		this.original = this.container.clone();
 
-		var that = this;
+		var self = this;
 		this.init();
 
 		this.moveToPosition();
@@ -62,13 +56,13 @@
 			var box = $('<div/>').addClass('mirage-item').data('miragePosition', i+1).html($('img', item).first());
 			box.data('moveToPosition', i + 1);
 			if (i === 0)
-				box.addClass('first');
+				box.addClass('mirage-first');
 			else if (i == 1)
-				box.addClass('second');
+				box.addClass('mirage-second');
 			else if (i == 2)
-				box.addClass('third');
+				box.addClass('mirage-third');
 			else
-				box.addClass('hidden');
+				box.addClass('mirage-hidden');
 			$container.append(box);
 		});
 
@@ -76,7 +70,6 @@
 
 	Mirage.prototype.rotate = function(direction) {
 		$boxes = $('.mirage-item', this.container);
-		console.log(direction);
 		$boxes.each(function () {
 			var newPos;
 			var currentPos = $(this).data('miragePosition');
@@ -85,48 +78,48 @@
 			} else {
 				newPos = currentPos - 1 < 1 ? $boxes.size() : currentPos - 1;
 			}
-			$(this).data('miragePosition',newPos).addClass('position_'+newPos);
+			$(this).data('miragePosition',newPos);
 
 			if (newPos === 1)
-				$(this).addClass('first').removeClass('second').removeClass('third').removeClass('hidden');
+				$(this).addClass('mirage-first').removeClass('mirage-second').removeClass('mirage-third').removeClass('mirage-hidden');
 			else if (newPos == 2)
-				$(this).addClass('second').removeClass('first').removeClass('third').removeClass('hidden');
+				$(this).addClass('mirage-second').removeClass('mirage-first').removeClass('mirage-third').removeClass('mirage-hidden');
 			else if (newPos == 3)
-				$(this).addClass('third').removeClass('first').removeClass('second').removeClass('hidden');
+				$(this).addClass('mirage-third').removeClass('mirage-first').removeClass('mirage-second').removeClass('mirage-hidden');
 			else
-				$(this).addClass('hidden').removeClass('first').removeClass('second').removeClass('third');
+				$(this).addClass('mirage-hidden').removeClass('mirage-first').removeClass('mirage-second').removeClass('mirage-third');
 		});
 
 	};
 
 	Mirage.prototype.moveToPosition = function() {
-		var that = this,
+		var self = this,
 			$boxes = $('.mirage-item', this.container);
+
 		$boxes.each(function() {
-			var mLength = 180,
-				$this = $(this),
+			var $this = $(this),
 				i = $this.data('miragePosition');
 
 			$this.animate({
-				'left': i > 3 ? 2 * mLength : i == 2 ? i * mLength - 15 : i * mLength,
+				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier : i == 2 ? i * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15 : i * self.options.imageMaxWidth  * self.options.distanceMultiplier,
 				'top': i != 2 ? 15 : 0,
-				'width': i == 2 ? 150 : i > 3 ? 50 : 120,
-				'height': i == 2 ? 150 : i > 3 ? 50 : 120,
-				'opacity': i == 2 ? 1 : i > 3 ? 0 : 0.7
-			}, 1000);
+				'width': i == 2 ? self.options.imageMaxWidth : i > 3 ? self.options.hiddenWidth : self.options.imageMinWidth,
+				'height': i == 2 ? self.options.imageMaxHeight : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight,
+				'opacity': i == 2 ? 1 : i > 3 ? 0 : self.options.imageOpacity
+			}, self.options.speed);
 
 		});
 
 		$('.mirage-item').unbind('click');
 			
-		$('.mirage-item.first').on('click', function() {
-			that.rotate('clockwise');
-			that.moveToPosition();
+		$('.mirage-item.mirage-first').on('click', function() {
+			self.rotate('clockwise');
+			self.moveToPosition();
 		});
 
-		$('.mirage-item.third').on('click', function() {
-			that.rotate();
-			that.moveToPosition();
+		$('.mirage-item.mirage-third').on('click', function() {
+			self.rotate();
+			self.moveToPosition();
 		});
 	};
 
