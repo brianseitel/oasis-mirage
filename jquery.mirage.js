@@ -14,7 +14,8 @@
 		'imageOpacity': 0.7,
 		'hiddenWidth': 50,
 		'hiddenHeight': 50,
-		'speed': 1500
+		'speed': 1500,
+		'shadowOffset': 50
 	};
 
 	// The actual plugin constructor
@@ -104,7 +105,7 @@
 				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier : i == 2 ? i * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15 : i * self.options.imageMaxWidth  * self.options.distanceMultiplier,
 				'top': i != 2 ? 15 : 0,
 				'width': i == 2 ? self.options.imageMaxWidth : i > 3 ? self.options.hiddenWidth : self.options.imageMinWidth,
-				'height': i == 2 ? self.options.imageMaxHeight : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight,
+				'height': i == 2 ? self.options.imageMaxHeight + self.options.shadowOffset : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight + self.options.shadowOffset,
 				'opacity': i == 2 ? 1 : i > 3 ? 0 : self.options.imageOpacity
 			}, self.options.speed);
 
