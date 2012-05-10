@@ -6,11 +6,8 @@
 	var pluginName = 'Mirage',
 	defaults = {
 		'containerWidth': 500,
+		'containerHeight': 200,
 		'distanceMultiplier': 1,
-		'imageMaxWidth': 150,
-		'imageMaxHeight': 150,
-		'imageMinWidth': 120,
-		'imageMinHeight': 120,
 		'imageOpacity': 0.7,
 		'hiddenWidth': 50,
 		'hiddenHeight': 50,
@@ -22,10 +19,17 @@
 	function Mirage( element, options ) {
 		this.element = element;
 
+		this.arrows = '<span class="mirage-left"></span><span class="mirage-right"></span>';
+
 
 		this._defaults = defaults;
 
 		this.options = $.extend( {}, defaults, options) ;
+
+		this.options.imageMaxWidth = (this.options.containerWidth / 3);
+		this.options.imageMaxHeight = this.options.containerHeight;
+		this.options.imageMinWidth = (this.options.containerWidth / 3) * 0.9;
+		this.options.imageMinHeight = this.options.containerHeight * 0.9;
 
 		this._name = pluginName;
 		this.container = $(element);
@@ -35,13 +39,47 @@
 
 		var self = this;
 		this.init();
-
 		this.moveToPosition();
+
+		$('.mirage-image img').load(function() {
+			var image = $(this);
+			image.data('original-width', image.innerWidth()).data('original-height', image.innerHeight());
+		});
 	}
 
 	Mirage.prototype.init = function () {
 		this.buildContainer();
+		this.container.css({
+			'width': this.options.containerWidth,
+			'height': this.options.containerHeight
+		});
 		this.populateContainer();
+	};
+
+	Mirage.prototype.attachListeners = function() {
+		$('.mirage-item')
+			.off('mouseenter')
+			.off('mouseleave');
+
+		$('.mirage-item.mirage-first')
+			.off('mouseenter')
+			.off('mouseleave')
+			.on('mouseenter', function() {
+				$('.mirage-left', this).show();
+			})
+			.on('mouseleave', function() {
+				$('.mirage-left', this).hide();
+			});
+
+		$('.mirage-item.mirage-third')
+			.off('mouseenter')
+			.off('mouseleave')
+			.on('mouseenter', function() {
+				$('.mirage-right', this).show();
+			})
+			.on('mouseleave', function() {
+				$('.mirage-right', this).hide();
+			});
 	};
 
 	Mirage.prototype.buildContainer = function() {
@@ -52,9 +90,12 @@
 	};
 
 	Mirage.prototype.populateContainer = function() {
-		var images, $container = this.container, $options = this.options;
+		var images, $container = this.container, $options = this.options, self = this;
 		this.image_list.each(function(i, item) {
-			var box = $('<div/>').addClass('mirage-item').data('miragePosition', i+1).html($('img', item).first());
+			var box = $('<div/>').addClass('mirage-item').data('miragePosition', i+1);
+			var img = $('<div/>').addClass('mirage-image').html(item.innerHTML).append(self.arrows);
+			var image = $('img', img);
+			box.append(img);
 			box.data('moveToPosition', i + 1);
 			if (i === 0)
 				box.addClass('mirage-first');
@@ -97,31 +138,39 @@
 		var self = this,
 			$boxes = $('.mirage-item', this.container);
 
+		$('.mirage-item .mirage-left').unbind('click');
+		$('.mirage-item .mirage-right').unbind('click');
+
 		$boxes.each(function() {
 			var $this = $(this),
-				i = $this.data('miragePosition');
+				i = $this.data('miragePosition'),
+				img = $('img', this),
+				leftOffset = self.options.containerWidth / 10;
 
 			$this.animate({
-				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier : i == 2 ? i * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15 : i * self.options.imageMaxWidth  * self.options.distanceMultiplier,
+				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier + leftOffset : i == 2 ? (i - 1) * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15  + leftOffset : (i - 1) * self.options.imageMaxWidth  * self.options.distanceMultiplier + leftOffset,
 				'top': i != 2 ? 15 : 0,
 				'width': i == 2 ? self.options.imageMaxWidth : i > 3 ? self.options.hiddenWidth : self.options.imageMinWidth,
 				'height': i == 2 ? self.options.imageMaxHeight + self.options.shadowOffset : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight + self.options.shadowOffset,
 				'opacity': i == 2 ? 1 : i > 3 ? 0 : self.options.imageOpacity
-			}, self.options.speed);
-
+			}, self.options.speed, 'swing');
+			$('.mirage-image', this).animate({
+				'height': i == 2 ? self.options.imageMaxHeight : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight
+			});
 		});
 
-		$('.mirage-item').unbind('click');
-			
-		$('.mirage-item.mirage-first').on('click', function() {
+		$('.mirage-item.mirage-first .mirage-left').on('click', function() {
 			self.rotate('clockwise');
 			self.moveToPosition();
+			self.attachListeners();
 		});
 
-		$('.mirage-item.mirage-third').on('click', function() {
+		$('.mirage-item.mirage-third .mirage-right').on('click', function() {
 			self.rotate();
 			self.moveToPosition();
+			self.attachListeners();
 		});
+		self.attachListeners();
 	};
 
 	// A really lightweight plugin wrapper around the constructor,
