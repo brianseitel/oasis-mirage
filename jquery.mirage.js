@@ -38,14 +38,27 @@
 		this.original = this.container.clone();
 
 		var self = this;
-		this.init();
-		this.moveToPosition();
-
-		$('.mirage-image img').load(function() {
-			var image = $(this);
-			image.data('original-width', image.innerWidth()).data('original-height', image.innerHeight());
-		});
+		this.preload();
 	}
+
+	Mirage.prototype.preload = function() {
+		var $images = this.container.find("img"),
+			imagesLoaded = 0,
+			imageCount = $images.length,
+			self = this;
+		$images.load(function () {
+			imagesLoaded++;
+			var $this = $(this);
+			if (imagesLoaded == imageCount) {
+				self.init();
+				self.container.show();
+				self.moveToPosition();
+			}
+
+			if (this.complete)
+				$(this).trigger('load');
+		});
+	};
 
 	Mirage.prototype.init = function () {
 		this.buildContainer();
@@ -87,6 +100,7 @@
 		var container = $('<div/>').attr('id', 'mirage-box');
 		this.container.replaceWith(container);
 		this.container = container;
+		this.container.hide();
 	};
 
 	Mirage.prototype.populateContainer = function() {
@@ -144,8 +158,10 @@
 		$boxes.each(function() {
 			var $this = $(this),
 				i = $this.data('miragePosition'),
-				img = $('img', this),
-				leftOffset = self.options.containerWidth / 10;
+				imgbox = $('.mirage-image', this),
+				img = $('img', imgbox),
+				leftOffset = self.options.containerWidth / 10,
+				newtop = 0;
 
 			$this.animate({
 				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier + leftOffset : i == 2 ? (i - 1) * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15  + leftOffset : (i - 1) * self.options.imageMaxWidth  * self.options.distanceMultiplier + leftOffset,
@@ -154,8 +170,15 @@
 				'height': i == 2 ? self.options.imageMaxHeight + self.options.shadowOffset : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight + self.options.shadowOffset,
 				'opacity': i == 2 ? 1 : i > 3 ? 0 : self.options.imageOpacity
 			}, self.options.speed, 'swing');
-			$('.mirage-image', this).animate({
-				'height': i == 2 ? self.options.imageMaxHeight : i > 3 ? self.options.hiddenHeight : self.options.imageMinHeight
+
+			if (img.height < $this.height()) {
+				newtop = ($this.height() - img.height) / 2;
+			} else {
+				newtop = (img.height - $this.height()) / 2;
+			}
+
+			imgbox.animate({
+				'top': newtop
 			});
 		});
 
