@@ -106,9 +106,11 @@
 	Mirage.prototype.populateContainer = function() {
 		var images, $container = this.container, $options = this.options, self = this;
 		this.image_list.each(function(i, item) {
+			var image = $('img', item);
 			var box = $('<div/>').addClass('mirage-item').data('miragePosition', i+1);
 			var img = $('<div/>').addClass('mirage-image').html(item.innerHTML).append(self.arrows);
-			var image = $('img', img);
+			var diff = img.width - box.width < 0 ? 0 : img.width - box.width;
+			img.css('left', -(diff / 2)).css('width', image.width);
 			box.append(img);
 			box.data('moveToPosition', i + 1);
 			if (i === 0)
@@ -121,7 +123,6 @@
 				box.addClass('mirage-hidden');
 			$container.append(box);
 		});
-
 	};
 
 	Mirage.prototype.rotate = function(direction) {
@@ -137,13 +138,29 @@
 			$(this).data('miragePosition',newPos);
 
 			if (newPos === 1)
-				$(this).addClass('mirage-first').removeClass('mirage-second').removeClass('mirage-third').removeClass('mirage-hidden');
+				$(this)
+					.addClass('mirage-first')
+					.removeClass('mirage-second')
+					.removeClass('mirage-third')
+					.removeClass('mirage-hidden');
 			else if (newPos == 2)
-				$(this).addClass('mirage-second').removeClass('mirage-first').removeClass('mirage-third').removeClass('mirage-hidden');
+				$(this)
+					.addClass('mirage-second')
+					.removeClass('mirage-first')
+					.removeClass('mirage-third')
+					.removeClass('mirage-hidden');
 			else if (newPos == 3)
-				$(this).addClass('mirage-third').removeClass('mirage-first').removeClass('mirage-second').removeClass('mirage-hidden');
+				$(this)
+					.addClass('mirage-third')
+					.removeClass('mirage-first')
+					.removeClass('mirage-second')
+					.removeClass('mirage-hidden');
 			else
-				$(this).addClass('mirage-hidden').removeClass('mirage-first').removeClass('mirage-second').removeClass('mirage-third');
+				$(this)
+					.addClass('mirage-hidden')
+					.removeClass('mirage-first')
+					.removeClass('mirage-second')
+					.removeClass('mirage-third');
 		});
 
 	};
@@ -154,7 +171,7 @@
 
 		$('.mirage-item .mirage-left').unbind('click');
 		$('.mirage-item .mirage-right').unbind('click');
-
+		
 		$boxes.each(function() {
 			var $this = $(this),
 				i = $this.data('miragePosition'),
@@ -162,7 +179,6 @@
 				img = $('img', imgbox),
 				leftOffset = self.options.containerWidth / 10,
 				newtop = 0;
-
 			$this.animate({
 				'left': i > 3 ? 2 * self.options.imageMaxWidth * self.options.distanceMultiplier + leftOffset : i == 2 ? (i - 1) * self.options.imageMaxWidth  * self.options.distanceMultiplier - 15  + leftOffset : (i - 1) * self.options.imageMaxWidth  * self.options.distanceMultiplier + leftOffset,
 				'top': i != 2 ? 15 : 0,
