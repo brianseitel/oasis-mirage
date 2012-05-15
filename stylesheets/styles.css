@@ -695,7 +695,7 @@ dt {
 }
 
 #header {
-  z-index: 100;
+  z-index: 1000;
   left: 0;
   top: 0px;
   height: 60px;
@@ -848,3 +848,5 @@ section #title .credits.right {
     display: none;
   }
 }
+
+pre { font-family: Verdana; font-size: 11px; }
